@@ -1,27 +1,28 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled1/Services/FirebaseStorage.dart';
+import 'package:untitled1/mode/videomodel.dart';
 
+class KarateData {
+  String Categoryname;
+  String filename;
+  String url;
 
-
-class KarateData{
-String Categoryname;
-String filename;
-String url;
-
-KarateData(this.Categoryname,this.filename,this.url);
+  KarateData(this.Categoryname, this.filename, this.url);
 }
 
-
 class karateMenuList extends StatefulWidget {
-  karateMenuList(this.ktext,this.ksubtitle, {Key? key}) : super(key: key);
-  var ktext,ksubtitle;
+  karateMenuList(this.ktext, this.ksubtitle, {Key? key}) : super(key: key);
+  var ktext, ksubtitle;
 
   @override
   _karateMenuListState createState() => _karateMenuListState();
 }
 
 class _karateMenuListState extends State<karateMenuList> {
-  final getData=FirebaseFirestore.instance;
+  final getData = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -56,50 +57,56 @@ class _karateMenuListState extends State<karateMenuList> {
                     ]),
               ),
             ),
-            Container(
-              height: 510,
-              margin: EdgeInsets.all(16),
-              width: double.infinity,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: getData.collection('videos').snapshots(),
-                builder: (BuildContext context,AsyncSnapshot snapshot){
-                  if(!snapshot.hasData){
-                    return Center(child: CircularProgressIndicator(),);
-                  }else{
-                    Map<dynamic,dynamic> listData= snapshot.data.doc;
-                    return GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            SingleChildScrollView(
+              child: Container(
+                height: 510,
+                margin: EdgeInsets.all(16),
+                width: double.infinity,
+                child: FutureBuilder<List<VideoModel>>(
+                  future: getVideoList(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      List<VideoModel> listData = snapshot.data;
+                       print(listData);
+                      return GridView.builder(
+                        scrollDirection: Axis.vertical,
+                        
+                       
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 4.0,
                             mainAxisSpacing: 8.0,
-
-                        ),
-                        itemCount: listData.length,
-                        itemBuilder: (BuildContext context,int index){
-                          return InkWell(
-                            onTap: (){
-                              print('The all Category name is here ${listData[index].doc}');
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                  color: Colors.teal[200],
-                                  borderRadius: BorderRadius.all(Radius.circular(40)),
-                                  image: DecorationImage(
-                                      image: AssetImage('Assets/images/child.jpg'),
-                                      fit: BoxFit.cover
-
-                                  )
+                          ),
+                          itemCount: listData.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return InkWell(
+                              onTap: () {
+                                print(
+                                    'The all Category name is here ${listData[index].categoryName}');
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                    color: Colors.teal[200],
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(40)),
+                                    image: DecorationImage(
+                                        image:
+                                            AssetImage('Assets/images/child.jpg'),
+                                        fit: BoxFit.cover)),
+                                height: 100,
+                                width: 100,
+                                child: Image.asset('Assets/images/clapper.png'),
                               ),
-                              height: 100,
-                              width: 100,
-                              child: Image.asset('Assets/images/clapper.png'),
-
-                            ),
-                          );
-                        });
-                  }
-                },
+                            );
+                          });
+                    }
+                  },
+                ),
               ),
             )
           ],
@@ -108,9 +115,6 @@ class _karateMenuListState extends State<karateMenuList> {
     );
   }
 }
-
-
-
 
 class kGridItembox extends StatelessWidget {
   @override
@@ -121,15 +125,10 @@ class kGridItembox extends StatelessWidget {
           color: Colors.teal[200],
           borderRadius: BorderRadius.all(Radius.circular(40)),
           image: DecorationImage(
-              image: AssetImage('Assets/images/child.jpg'),
-              fit: BoxFit.cover
-
-          )
-      ),
+              image: AssetImage('Assets/images/child.jpg'), fit: BoxFit.cover)),
       height: 100,
       width: 100,
       child: Image.asset('Assets/images/clapper.png'),
-
     );
   }
 }
